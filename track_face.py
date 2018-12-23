@@ -5,12 +5,17 @@ import threading
 import time
 import paho.mqtt.client as mqtt
 import alphabot.servo as servo
+import alphabot.controller as controller
+
+
+FACE_DISTANCE_THRESHOLD = 150
+CAMERA_CENTER_ANGLE = 95
 
 
 class State:
-    camera_angle = 90
+    camera_angle = CAMERA_CENTER_ANGLE
     search_direction = 1
-    search_range = [30, 150]
+    search_range = [20, 170]
 
     face = 0
     face_position = 0
@@ -28,17 +33,35 @@ def search_face():
     servo.write(1, State.camera_angle)
 
 def track_face():
-    pass
+    if State.camera_angle > CAMERA_CENTER_ANGLE:
+        State.camera_angle -= 1
+    elif State.camera_angle < CAMERA_CENTER_ANGLE:
+        State.camera_angle += 1
+
+    servo.write(1, State.camera_angle)
+
+    if controller.is_edge():
+        controller.t_down(20, 0.2)
+    else:
+        if State.face_position < -FACE_DISTANCE_THRESHOLD:
+            controller.t_right(40, 0.02)
+        elif State.face_position > FACE_DISTANCE_THRESHOLD:
+            controller.t_left(40, 0.02)
+        else:
+            controller.t_up(20, 0.2)
+
+    controller.t_stop(0.5)
 
 
 def task():
     while True:
-        if State.face:
+        if not State.face:
             search_face()
-        else:
+        elif State.no_face_time == 0:
+            print((State.face_position, State.camera_angle, controller.is_edge()))
             track_face()
 
-        time.sleep(0.001)
+        time.sleep(0.05)
 
 
 
