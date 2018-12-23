@@ -95,17 +95,18 @@ def is_edge():
     SR = GPIO.input(T_SensorRight)
     SL = GPIO.input(T_SensorLeft)
 
-    return not (SR and SL)
+    return (SR and SL)
 
     
 def main():
     try:
         while True:
-            # t_up(50,3)
-            # t_down(50,3)
-            t_left(50, 3)
-            t_right(50, 3)
-            t_stop(3)
+            #t_up(40, 3)
+            #t_down(40,3)
+            t_left(40, 0.3)
+            #t_right(40, 0.3)
+            t_stop(0.3)
+            print(is_edge())
     except KeyboardInterrupt:
         GPIO.cleanup()
 

@@ -41,16 +41,23 @@ def track_face():
     servo.write(1, State.camera_angle)
 
     if controller.is_edge():
-        controller.t_down(20, 0.2)
+        print('backward')
+        controller.t_down(40, 0.8)
+        controller.t_stop(0.5)
     else:
         if State.face_position < -FACE_DISTANCE_THRESHOLD:
-            controller.t_right(40, 0.02)
+            controller.t_right(40, 0.08)
+            print('right')
+            controller.t_stop(0.5)
         elif State.face_position > FACE_DISTANCE_THRESHOLD:
-            controller.t_left(40, 0.02)
+            controller.t_left(40, 0.08)
+            print('left')
+            controller.t_stop(0.5)
         else:
-            controller.t_up(20, 0.2)
+            controller.t_up(40, 0.08)
+            print('forward')
+            controller.t_stop(0.1)
 
-    controller.t_stop(0.5)
 
 
 def task():
@@ -76,7 +83,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("bus")
 
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    #print(msg.topic+" "+str(msg.payload))
     if msg.topic == 'bus':
         try:
             data = json.loads(msg.payload)
